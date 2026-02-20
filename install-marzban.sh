@@ -1,24 +1,25 @@
 #!/bin/bash
+set -e
 
-echo "=== Update system ==="
-apt-get update
-apt-get upgrade -y
-apt-get install curl socat git -y
+echo "Updating system..."
+apt-get update -qq > /dev/null 2>&1
+apt-get upgrade -y -qq > /dev/null 2>&1
+apt-get install -y -qq curl socat git > /dev/null 2>&1
 
-echo "=== Install Docker ==="
-curl -fsSL https://get.docker.com | sh
+echo "Installing Docker..."
+curl -fsSL https://get.docker.com | sh > /dev/null 2>&1
 
-echo "=== Clone Marzban-node ==="
+echo "Preparing Marzban Node..."
+
 cd ~
-git clone https://github.com/Gozargah/Marzban-node
 
-echo "=== Create marzban directory ==="
+if [ ! -d "Marzban-node" ]; then
+  git clone https://github.com/Gozargah/Marzban-node > /dev/null 2>&1
+fi
+
 mkdir -p /var/lib/marzban-node
-
-echo "=== Go to Marzban-node directory ==="
 cd ~/Marzban-node
 
-echo "=== Replace docker-compose.yml ==="
 cat > docker-compose.yml <<EOF
 services:
   marzban-node:
@@ -33,14 +34,12 @@ services:
       - /var/lib/marzban-node:/var/lib/marzban-node
 EOF
 
-echo "=== Prepare certificate file ==="
 touch /var/lib/marzban-node/ssl_client_cert.pem
 
-echo "=== Paste your certificate, then save and exit ==="
+echo "Paste your certificate, then save and exit."
 nano /var/lib/marzban-node/ssl_client_cert.pem
 
-echo "=== Starting Marzban Node ==="
-cd ~/Marzban-node
-docker compose up -d
+echo "Starting Marzban Node..."
+docker compose up -d > /dev/null 2>&1
 
-echo "=== Done ✅ Marzban Node is running ==="
+echo "Done ✅ Marzban Node is running."
